@@ -11,4 +11,5 @@ scanPAV-bin/scanPAV_fasta
 scanPAV-bin/scanPAV_gapsize
 scanPAV-bin/scanPAV_process
 scanPAV-bin/scanPAV_seqout
-scanPAV-bin/scanPAV_shred 
+scanPAV-bin/scanPAV_shred
+ 
