@@ -1,1 +1,14 @@
 obso/
+scanPAV
+scanPAV-bin/scanPAV
+scanPAV-bin/scanPAV_bwagap
+scanPAV-bin/scanPAV_bwasam
+scanPAV-bin/scanPAV_bwatag
+scanPAV-bin/scanPAV_clean
+scanPAV-bin/scanPAV_confirm
+scanPAV-bin/scanPAV_cover
+scanPAV-bin/scanPAV_fasta
+scanPAV-bin/scanPAV_gapsize
+scanPAV-bin/scanPAV_process
+scanPAV-bin/scanPAV_seqout
+scanPAV-bin/scanPAV_shred 
