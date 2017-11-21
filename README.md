@@ -12,9 +12,9 @@ To find PAV sequences present in in assembly_1 (presence-assembly) but absent in
 ### Download and Compile:
 Requirements for compiling: gcc
 
-	$ git clone https://github.com/SangerHpag/scanPAV.git
-	$ cd scanPAV 
-	$ make
+		$ git clone https://github.com/SangerHpag/scanPAV.git
+		$ cd scanPAV 
+		$ make
 
 (Tested with gcc-4.9.2, XXX) 
 
@@ -23,7 +23,8 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 
 #### Run:
 
-           $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> </full/path/to/assembly_1.fasta> </full/path/to/assembly_2.fasta> <pavs_present_in_assembly_1.fasta>
+           $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> \
+	   	</full/path/to/assembly_1.fasta> </full/path/to/assembly_2.fasta> <pavs_present_in_assembly_1.fasta>
            
            where:
 	          /full/path/to/assembly_1.fasta: full path to the assembly file to be considered as "presence-assembly"
