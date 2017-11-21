@@ -9,8 +9,6 @@ To find PAV sequences present in in assembly_1 (presence-assembly) but absent in
            3. groups of consequent 1000 bases chunks that are not find 
                       in the absence assembly assembly_2 are merged and printed out as 'absence PAVs'
 
-
-
 ### Download and Compile:
 Requirements for compiling: gcc
 
@@ -25,29 +23,41 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 
 #### Run:
 
-           $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> <presence.fasta> <absence.fasta>
+           $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> </full/path/to/assembly_1.fasta> </full/path/to/assembly_2.fasta> <pavs_present_in_assembly_1.fasta>
            
            where:
+	          /full/path/to/assembly_1.fasta: full path to the assembly file to be considered as "presence-assembly"
+	     	  /full/path/to/assembly_2.fasta:  full path to the assembly file to be considered as "absence-assembly"
+	     	  pavs_present_in_assembly_1.fasta:   output name for the pav sequences. 
+	     		These are the PAVs present in assembly_1.fasta, but absent in assembly_2.fasta
+	     
+	   parameters:
              nodes:    number of CPUs requested  [ default = 30 ]
              sw-score: smith-waterman alignment score [ default = 550 ]
              aligner:  sequence aligner: bwa or smalt [ default = bwa ]
-                              
+             
+Please notice that scanPAV technically only finds sequences present in assembly_1.fasta that are 'absent' in assembly_2.fasta. To find the sequences that are absent in assembly_1.fasta but present in assembly_2.fasta, scanPAV
+has to be re-run inverting assembly_1.fasta and assembly_2.fasta:
 
+	   $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> </full/path/to/assembly_2.fasta> </full/path/to/assembly_1.fasta> <pavs_absent_in_assembly_1.fasta> 
+	   
+	   	where: 	 
+		   pavs_absent_in_assembly_1.fasta:  output name for the pav sequences. 
+			These are the PAVs absent in assembly_1.fasta, but present in assembly_2.fasta
+
+	
 #### Results
-The PAV sequences will be in the file presence_absence.fasta in your working directory.
+The PAV sequences will be in the file pavs_present_in_assembly_1.fasta in your working directory. If you also run the scanPAV pipeline with assembly_1.fasta and assembly_2.fasta in reverse order, then you'll find also the file  pavs_absent_in_assembly_1.fasta in your working directory.
 
-#### Some Notes:
-           1. you need to give the full path of the scanPAV input files or the files are in your working directory;
-           2. presence_assembly.fasta and absence_assembly.fasta should be in your working directory;
-           3. presence_assembly.fasta and absence_assembly.fasta are in full path.
-           4. If you use bwa, you need to check if the binary versin provided in the package works:
-          
+#### Some Notes on the aligners:
+           1. If you use bwa, you need to check if the binary versin provided in the package works:
+         
                     $ /full/path/to/scanPAV/scanPAV-bin/bwa
               This should print out the bwa help information. If this gives you error messages, 
               please link your own bwa installation to /full/path/to/scanPAV/scanPAV-bin/bwa :
                     $ ln -sf /full/path/to/my/own/bwa  /full/path/to/scanPAV/scanPAV-bin/bwa
               
-           5. The default aligner is bwa, but you also have the chance to use smalt, which is faster;
-           6. Results from smalt and bwa are relatively consistent, but some small differences 
+           2. The default aligner is bwa, but you also have the chance to use smalt, which is faster;
+           3. Results from smalt and bwa are relatively consistent, but some small differences 
               are to be expected due to different aligner sensitivities and internal parameters.
  
