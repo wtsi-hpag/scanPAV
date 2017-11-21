@@ -41,7 +41,9 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 Please notice that scanPAV technically only finds sequences present in assembly_1.fasta that are 'absent' in assembly_2.fasta. To find the sequences that are absent in assembly_1.fasta but present in assembly_2.fasta, scanPAV
 has to be re-run inverting assembly_1.fasta and assembly_2.fasta:
 
-	   $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> </full/path/to/assembly_2.fasta> </full/path/to/assembly_1.fasta> <pavs_absent_in_assembly_1.fasta> 
+	   $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> \
+	   	      </full/path/to/assembly_2.fasta> </full/path/to/assembly_1.fasta> \ 
+		      <pavs_absent_in_assembly_1.fasta> 
 	   
 	   	where: 	 
 		   pavs_absent_in_assembly_1.fasta:  output name for the pav sequences. 
