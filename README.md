@@ -24,7 +24,8 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 #### Run:
 
            $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> \
-	   	</full/path/to/assembly_1.fasta> </full/path/to/assembly_2.fasta> <pavs_present_in_assembly_1.fasta>
+	   	      </full/path/to/assembly_1.fasta> </full/path/to/assembly_2.fasta> \ 
+		      <pavs_present_in_assembly_1.fasta>
            
            where:
 	          /full/path/to/assembly_1.fasta: full path to the assembly file to be considered as "presence-assembly"
