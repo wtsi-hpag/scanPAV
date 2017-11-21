@@ -33,7 +33,7 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 	     	  pavs_present_in_assembly_1.fasta:   output name for the pav sequences. 
 	     		These are the PAVs present in assembly_1.fasta, but absent in assembly_2.fasta
 	     
-	   parameters:
+	       parameters:
              nodes:    number of CPUs requested  [ default = 30 ]
              sw-score: smith-waterman alignment score [ default = 550 ]
              aligner:  sequence aligner: bwa or smalt [ default = bwa ]
@@ -54,14 +54,16 @@ has to be re-run inverting assembly_1.fasta and assembly_2.fasta:
 The PAV sequences will be in the file pavs_present_in_assembly_1.fasta in your working directory. If you also run the scanPAV pipeline with assembly_1.fasta and assembly_2.fasta in reverse order, then you'll find also the file  pavs_absent_in_assembly_1.fasta in your working directory.
 
 #### Some Notes on the aligners:
-           1. If you use bwa, you need to check if the binary versin provided in the package works:
+1. If you use bwa, you need to check if the binary versin provided in the package works:
          
                     $ /full/path/to/scanPAV/scanPAV-bin/bwa
-              This should print out the bwa help information. If this gives you error messages, 
-              please link your own bwa installation to /full/path/to/scanPAV/scanPAV-bin/bwa :
+		    
+   This should print out the bwa help information. If this gives you error messages, 
+      please link your own bwa installation to /full/path/to/scanPAV/scanPAV-bin/bwa :
+	      
                     $ ln -sf /full/path/to/my/own/bwa  /full/path/to/scanPAV/scanPAV-bin/bwa
               
-           2. The default aligner is bwa, but you also have the chance to use smalt, which is faster;
-           3. Results from smalt and bwa are relatively consistent, but some small differences 
-              are to be expected due to different aligner sensitivities and internal parameters.
+2. The default aligner is bwa, but you also have the chance to use smalt, which is faster;
+3. Results from smalt and bwa are relatively consistent, but some small differences 
+      are to be expected due to different aligner sensitivities and internal parameters.
  
