@@ -193,7 +193,7 @@ int main(int argc, char **argv)
     n_ctg = 0;
     for(i=0;i<i_contig;i++)
     {
-       int k,seq_st,seq_ed,rc,seq_len,st2,ed2;
+       int k,seq_st,seq_ed,rc,seq_len,st2,ed2,cut_st,cut_ed;
        int trash_flag = 0;
 
        
@@ -211,15 +211,49 @@ int main(int argc, char **argv)
        {
          int nline = (seq_ed-seq_st)/60;
          seq_len = seq_ed-seq_st;
+
+         cut_st = seq_st;
+         cut_ed = seq_ed;
+         if(seqp->data[seq_ed-1] != 'N')
+           cut_ed = seq_ed;
+         else
+         {
+           for(rc=(seq_ed-1);rc>seq_st;rc--)
+           {
+              if(seqp->data[rc]!='N')
+              {
+                idt = rc+1;
+                rc = 0;
+              }
+           }
+           cut_ed = idt; 
+         }
+         if(seqp->data[seq_st] != 'N')
+           cut_st = seq_st;
+         else
+         {
+           for(rc=seq_st;rc<seq_ed;rc++)
+           {
+              if(seqp->data[rc]!='N')
+              {
+                idt = rc;
+                rc = seq_ed;
+              }
+           }
+           cut_st = idt; 
+         }
+
+         seq_len = cut_ed - cut_st;
+         nline = (cut_ed-cut_st)/60;
          fprintf(fpOutfast,">Extract_%07d_%09d_%09d\n",ctg_list[i],n_ctg,seq_len);
          for(k=0;k<nline;k++)
          {
             for(j=0;j<60;j++)
-               fprintf(fpOutfast,"%c",seqp->data[k*60+j+seq_st]);
+               fprintf(fpOutfast,"%c",seqp->data[k*60+j+cut_st]);
             fprintf(fpOutfast,"\n");
          }
          for(j=0;j<(seq_len-(nline*60));j++)
-            fprintf(fpOutfast,"%c",seqp->data[nline*60+j+seq_st]);
+            fprintf(fpOutfast,"%c",seqp->data[nline*60+j+cut_st]);
          if((seq_len%60)!=0)
            fprintf(fpOutfast,"\n");
          n_ctg++;
