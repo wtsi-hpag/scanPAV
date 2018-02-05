@@ -14,16 +14,19 @@ Requirements for compiling: gcc
 
 		$ git clone https://github.com/SangerHpag/scanPAV.git
 		$ cd scanPAV 
-		$ make
+		$ ./install.sh
+		
+If everything compiled saccessfully you must see the final comment: 
+		"Congrats: installation successful!"		
 
 (Tested with gcc-4.9.2, XXX) 
 
 #### External packages
-The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sanger.ac.uk/science/tools/smalt-0) are included in the package.
+The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sanger.ac.uk/science/tools/smalt-0) are downloaded and compiled by scanPAV.
 
 #### Run:
 
-           $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> \
+           $ /full/path/to/scanPAV/src/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> \
 	   	      </full/path/to/assembly_1.fasta> </full/path/to/assembly_2.fasta> \ 
 		      <pavs_present_in_assembly_1.fasta>
            
@@ -41,7 +44,7 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 Please notice that scanPAV technically only finds sequences present in assembly_1.fasta that are 'absent' in assembly_2.fasta. To find the sequences that are absent in assembly_1.fasta but present in assembly_2.fasta, scanPAV
 has to be re-run inverting assembly_1.fasta and assembly_2.fasta:
 
-	   $ /full/path/to/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> \
+	   $ /full/path/to/scanPAV/src/scanPAV -nodes <nodes> -align <aligner> -score <sw-score> \
 	   	      </full/path/to/assembly_2.fasta> </full/path/to/assembly_1.fasta> \ 
 		      <pavs_absent_in_assembly_1.fasta> 
 	   
@@ -54,14 +57,15 @@ has to be re-run inverting assembly_1.fasta and assembly_2.fasta:
 The PAV sequences will be in the file pavs_present_in_assembly_1.fasta in your working directory. If you also run the scanPAV pipeline with assembly_1.fasta and assembly_2.fasta in reverse order, then you'll find also the file  pavs_absent_in_assembly_1.fasta in your working directory.
 
 #### Some Notes on the aligners:
-1. If you use bwa, you need to check if the binary versin provided in the package works:
+1. You can check if the bwa installation was succesfull by launching:
          
-                    $ /full/path/to/scanPAV/scanPAV-bin/bwa
+                    $ /full/path/to/scanPAV/src/scanPAV-bin/bwa
 		    
    This should print out the bwa help information. If this gives you error messages, 
-      please link your own bwa installation to /full/path/to/scanPAV/scanPAV-bin/bwa :
+      you can try to re-install it (by running again the install.sh script) or you
+      can link your own bwa installation into /full/path/to/scanPAV/src/scanPAV-bin/bwa :
 	      
-                    $ ln -sf /full/path/to/my/own/bwa  /full/path/to/scanPAV/scanPAV-bin/bwa
+                    $ ln -sf /full/path/to/my/own/bwa  /full/path/to/scanPAV/src/scanPAV-bin/bwa
               
 2. The default aligner is bwa, but you also have the chance to use smalt, which is faster;
 3. Results from smalt and bwa are relatively consistent, but some small differences 
