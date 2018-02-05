@@ -19,7 +19,7 @@ Requirements for compiling: gcc
 If everything compiled saccessfully you must see the final comment: 
 		"Congrats: installation successful!"		
 
-(Tested with gcc-4.9.2, XXX) 
+(Tested with gcc-4.9.2) 
 
 #### External packages
 The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sanger.ac.uk/science/tools/smalt-0) are downloaded and compiled by scanPAV.
