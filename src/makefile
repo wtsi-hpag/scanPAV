@@ -3,7 +3,7 @@ CC= gcc
 CFLAGS= -O2
 LFLAGS= -lm
 
-SOURCES=scanPAV_seqout.c scanPAV_fasta.c scanPAV_shred.c scanPAV_confirm.c scanPAV_gapsize.c scanPAV.c scanPAV_bwasam.c scanPAV_bwatag.c scanPAV_bwagap.c scanPAV_clean.c scanPAV_cover.c scanPAV_process.c  
+SOURCES=scanPAV_seqout.c scanPAV_fasta.c scanPAV_shred.c scanPAV_confirm.c scanPAV_gapsize.c scanPAV.c scanPAV_bwasam.c scanPAV_bwatag.c scanPAV_bwagap.c scanPAV_clean.c scanPAV_cover.c scanPAV_process.c scanPAV_maploci.c 
 
 #SOURCES1=scanPAV_seqout.c scanPAV_fasta.c scanPAV_shred.c scanPAV_confirm.c scanPAV_gapsize.c #these are only codes that need fast.o
 
