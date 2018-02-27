@@ -24,7 +24,7 @@ If everything compiled saccessfully you must see the final comment:
 ### Test the installation using the yeast example:
 		$ cd example
 		$ ./run_yeast.sh
-The test is using 20 cores and should take less than a minute. The pipeline output will be in bwa_550/log.txt and the pavs in the same folder: bwa_550/. More details on the test in example/readme.txt.
+The test is using 20 cores and should take less than a minute. To modify the number of cores used by the test change the parameter "cpus" in run_yeast.sh before launching. The pipeline output will be in bwa_550/log.txt and the pavs in the same folder: bwa_550/. More details on the test in example/readme.txt.
 
 #### External packages
 The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sanger.ac.uk/science/tools/smalt-0) are downloaded and compiled by scanPAV.
