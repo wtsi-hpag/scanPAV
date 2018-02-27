@@ -1,4 +1,4 @@
-bwa_550/log.txt# scanPAV
+# scanPAV
 Pipeline to detect presence/absence variations (PAVs) when comparing two genome assemblies, assembly_1 and assembly_2.
 
 To find PAV sequences present in in assembly_1 (presence-assembly) but absent in assembly_2 (absence-assembly), the pipeline performs the following steps:
@@ -59,7 +59,10 @@ has to be re-run inverting assembly_1.fasta and assembly_2.fasta:
 
 	
 #### Results
-The PAV sequences will be in the file pavs_present_in_assembly_1.fasta in your working directory. If you also run the scanPAV pipeline with assembly_1.fasta and assembly_2.fasta in reverse order, then you'll find also the file  pavs_absent_in_assembly_1.fasta in your working directory.
+The PAV sequences will be in the file pavs_present_in_assembly_1.fasta in your working directory. If you also run the scanPAV pipeline with assembly_1.fasta and assembly_2.fasta in reverse order, then you'll find also the file  pavs_absent_in_assembly_1.fasta in your working directory. 
+
+##### Filtering of short PAVs
+We recommend filtering out all PAV sequences shorter or equal to 1000 bp, as they are mostly noise and generally occurr on the edge of long variations or long N-gaps.
 
 #### Some Notes on the aligners:
 1. You can check if the bwa installation was succesfull by launching:
