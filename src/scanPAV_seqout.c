@@ -42,9 +42,9 @@
 #define MAXLINE 4096
 #define ENDS_EXTRA 0
 #define PADCHAR '-'
-#define Max_N_NameBase 50
+#define Max_N_NameBase 200
 #define Max_N_Pair 100
-static char **cell_name;
+static char **cell_name,**S_Name;
 static char **rdname;
 static int *map_score,*hit_refst,*hit_refed,*hit_rcdex,*hit_quest,*hit_queed;
 static int *readIndex,*ctg_index,*cell_index,*read_mask;
@@ -79,25 +79,26 @@ fasta *sub;
 
 int main(int argc, char **argv)
 {
-    FILE *fp,*namef,*fpOutfast;
+    FILE *fp,*namef,*fpOutfast,*fpOutfast2;
     int i,j,nSeq,args,i_contig,idt,n_ctg;
     char line[2000]={0},ctgnameout[Max_N_NameBase],tmptext[Max_N_NameBase],tmptext2[Max_N_NameBase];
     char **cmatrix(B64_long nrl,B64_long nrh,B64_long ncl,B64_long nch);
-    fasta *seq,*seq2; 
+    fasta *seq,*seq2;
+    char file_name[2000] = {"presence.fasta"}; 
     void ArraySort_Mix(int n, B64_long *arr, int *brr);
     void Read_Pairs(char **argv,int args,int nLib,int nSeq);
     void Align_Process(char **argv,int args,int nRead);
     void Cigar_Filter(char **argv,int args,int nRead);
     fasta *segg,*seqp,*seqp2;
     B64_long Size_q_pdata;
-    int num_seqque,size_range[5],*ctg_list,*ctg_locist,*ctg_locied;
+    int num_seqque,size_range[5],*ctg_list,*ctg_locist,*ctg_locied,*ctg_locist2,*ctg_locied2;
     char *pdata;
 
 
     memset(strain_name,'\0',100);
     if(argc < 2)
     {
-      printf("Usage: %s <input_contig_fastq> <break_file> <output_contig_fastq> \n",argv[0]);
+      printf("Usage: %s -file file_name <input_contig_fastq> <input_match_file> <input_tag_file> <output_vcf/bed_file> <output_fasta_file>\n",argv[0]);
       exit(1);
     }
 
@@ -117,7 +118,7 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-file"))
        {
-         sscanf(argv[++i],"%d",&file_flag);
+         sscanf(argv[++i],"%s",file_name);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-shift"))
@@ -155,6 +156,9 @@ int main(int argc, char **argv)
     }
     fclose(fp);
 
+
+    S_Name=cmatrix(0,nSeq+1,0,Max_N_NameBase);
+
     i_contig = i_contig + nSeq;
     if((ctg_list= (int *)calloc(i_contig,sizeof(int))) == NULL)
     {
@@ -171,24 +175,80 @@ int main(int argc, char **argv)
       printf("ERROR Memory_Allocate: Align_Process - ctg_loci\n");
       exit(1);
     }
+    if((ctg_locist2= (int *)calloc(i_contig,sizeof(int))) == NULL)
+    {
+      printf("ERROR Memory_Allocate: Align_Process - ctg_head\n");
+      exit(1);
+    }
+    if((ctg_locied2= (int *)calloc(i_contig,sizeof(int))) == NULL)
+    {
+      printf("ERROR Memory_Allocate: Align_Process - ctg_loci\n");
+      exit(1);
+    }
+
     if((namef = fopen(argv[args+1],"r")) == NULL)
     {
       printf("ERROR main:: reads group file \n");
       exit(1);
     }
     i_contig = 0;
-    while(fscanf(namef,"%s %s %d %d %d %d",tmptext,tmptext2,&idt,&ctg_list[i_contig],&ctg_locist[i_contig],&ctg_locied[i_contig])!=EOF)
+    while(fscanf(namef,"%s %s %d %d %d %d %d %d",tmptext,tmptext,&idt,&ctg_list[i_contig],&ctg_locist[i_contig],&ctg_locied[i_contig],&ctg_locist2[i_contig],&ctg_locied2[i_contig])!=EOF)
     {
       i_contig++;
     }
     fclose(namef);
 
-/*  input read alignment info line   */
-    if((fpOutfast = fopen(argv[args+2],"w")) == NULL)
+
+/*  read the tag file         */
+    if((namef = fopen(argv[args+2],"r")) == NULL)
+    {
+      printf("ERROR main:: reads group file \n");
+      exit(1);
+    }
+    i=0;
+    while(fscanf(namef,"%s %s %s %s",tmptext,tmptext,tmptext,S_Name[i])!=EOF)
+    {
+        i++;
+    }
+    fclose(namef);
+
+/* output the VCF file   */
+    if((fpOutfast2 = fopen(argv[args+3],"w")) == NULL)
     {
       printf("ERROR main:: reads group file: %s \n",argv[args]);
       exit(1);
     }
+/* output the fasta file   */
+    if((fpOutfast = fopen(argv[args+4],"w")) == NULL)
+    {
+      printf("ERROR main:: reads group file: %s \n",argv[args]);
+      exit(1);
+    }
+
+    fprintf(fpOutfast2,"##fileformat=VCFv4.2\n");
+    fprintf(fpOutfast2,"##FILTER=<ID=PASS,Description=%c%s%c>\n",'"',"All filters passed",'"');
+    fprintf(fpOutfast2,"##reference=file:%s\n",file_name);
+    fprintf(fpOutfast2,"##INFO=<ID=SVTYPE,Number=1,Type=String,Description=%c%s>%c\n",'"',"Type of structural variant",'"');
+    fprintf(fpOutfast2,"##INFO=<ID=SVLEN,Number=.,Type=Integer,Description=%c%s%c>\n",'"',"Difference in length between REF and ALT alleles",'"');
+    fprintf(fpOutfast2,"##INFO=<ID=END,Number=1,Type=Integer,Description=%c%s%c>\n",'"',"End position of the variant described in this record",'"');
+    fprintf(fpOutfast2,"##INFO=<ID=STRANDS,Number=.,Type=String,Description=%c%s%c>\n",'"',"Strand orientation of the adjacency in BEDPE format (DEL:+-, DUP:-+, INV:++/--)",'"');
+    fprintf(fpOutfast2,"##INFO=<ID=IMPRECISE,Number=0,Type=Flag,Description=%c%s%c>\n",'"',"Imprecise structural variation",'"');
+    fprintf(fpOutfast2,"##ALT=<ID=DEL,Description=%c%s%c>\n",'"',"Deletion",'"');
+    fprintf(fpOutfast2,"##ALT=<ID=DUP,Description=%c%s%c>\n",'"',"Duplication",'"');
+    fprintf(fpOutfast2,"##ALT=<ID=INV,Description=%c%s%c>\n",'"',"Inversion",'"');
+    fprintf(fpOutfast2,"##ALT=<ID=DUP:TANDEM,Description=%c%s%c>\n",'"',"Tandem duplication",'"');
+    fprintf(fpOutfast2,"##ALT=<ID=INS,Description=%c%s%c>\n",'"',"Insertion of novel sequence",'"');
+    fprintf(fpOutfast2,"##ALT=<ID=CNV,Description=%c%s%c>\n",'"',"Copy number variable region",'"');
+    fprintf(fpOutfast2,"##FORMAT=<ID=GT,Number=1,Type=String,Description=%c%s%c>\n",'"',"Genotype",'"');
+    fprintf(fpOutfast2,"##source=scanPAV\n");
+
+
+    for(i=0;i<nSeq;i++)
+    {
+       seqp = seq+i; 
+       fprintf(fpOutfast2,"##contig=<ID=%s,length=%d>\n",S_Name[i],seqp->length);
+    }
+    fprintf(fpOutfast2,"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n");
 
     n_ctg = 0;
     for(i=0;i<i_contig;i++)
@@ -245,7 +305,11 @@ int main(int argc, char **argv)
 
          seq_len = cut_ed - cut_st;
          nline = (cut_ed-cut_st)/60;
-         fprintf(fpOutfast,">Extract_%07d_%09d_%09d\n",ctg_list[i],n_ctg,seq_len);
+
+         fprintf(fpOutfast2,"%s\t%d\t.\t%c\t<DEL>",S_Name[ctg_list[i]],ctg_locist2[i]+1,'N');
+         fprintf(fpOutfast2,"\t50\tPASS\tSVTYPE=DEL;SVLEN=-%d;END=%d\n",seq_len,ctg_locied2[i]+1);  
+
+         fprintf(fpOutfast,">PAV_%s_%09d_%08d\n",S_Name[ctg_list[i]],ctg_locist2[i]+1,seq_len);
          for(k=0;k<nline;k++)
          {
             for(j=0;j<60;j++)
@@ -257,515 +321,15 @@ int main(int argc, char **argv)
          if((seq_len%60)!=0)
            fprintf(fpOutfast,"\n");
          n_ctg++;
-/*
-         for(rc=seq_st;rc<seq_ed;rc++)
-            fprintf(fpOutfast,"%c",seqp->data[rc]);
-         fprintf(fpOutfast,"\n");   */
        }
     }
+    fclose(fpOutfast2);
     fclose(fpOutfast);
+
     return EXIT_SUCCESS;
 
 }
 /* end of the main */
-
-/*   Subroutine to process alignment information */
-/* ====================================================  */
-void Cigar_Filter(char **argv,int args,int nRead)
-/* ====================================================  */
-{
-     int i,j,k,num_align;
-     char ID,line[2000],*ptr;
-     FILE *namef;
-
-     if((namef = fopen(argv[args],"r")) == NULL)
-     {
-       printf("ERROR main:: reads group file \n");
-       exit(1);
-     }
-
-/*   read the cigar file         */
-     num_align=0;
-     while(!feof(namef))
-     {
-       int nPair=0,len;
-       char line2[2000],line3[2000],base[50];
-      
-       fgets(line,2000,namef);
-       if(feof(namef)) break;
-       strcpy(line2,line);
-       if((strncmp(line,"cigar",5))==0)
-       { 
-         for(ptr=strtok(line," ");ptr!=NULL;ptr=strtok((char *)NULL," "),nPair++)
-         {
-         }
-//	 printf("line: %d %s",nPair,line2);
-	 if(nPair>=13)
-	 {
-           i=0;
-           for(ptr=strtok(line2," ");ptr!=NULL;ptr=strtok((char *)NULL," "),i++)
-           {
-              if(i==12)
-              {
-                memset(base,'\0',50);
-                strcat(base,ptr);
-                ID = *ptr;
-		if(insert_flag)
-		{
-	          if(ID == 'I')
-		  {
-                    read_mask[num_align] = 1;
-		    num_insreads++;
-		  }
-		}
-		if(delete_flag)
-		{
-	          if(ID == 'D')
-		  {
-                    read_mask[num_align] = 1;
-		    num_delreads++;
-		  }
-		}
-              }
-           }
-	 }
-       }
-       num_align++;
-     }
-     fclose(namef);
-
-     if(insert_flag)
-     {
-       num_hitreads = num_insreads;
-       printf("number of insertion reads: %d\n",num_insreads);
-     }
-     if(delete_flag)
-     {
-       num_hitreads = num_delreads;
-       printf("number of deletion reads: %d\n",num_delreads);
-     }
-}
-
-/*   Subroutine to process alignment information */
-/* ====================================================  */
-void Align_Process(char **argv,int args,int nRead)
-/* ====================================================  */
-{
-     int i,j,k,n_reads = nRead;
-     void ArraySort_Mix(int n,B64_long *arr,int *brr);
-     int  **imatrix(B64_long nrl,B64_long nrh,B64_long ncl,B64_long nch);
-     char **cmatrix(B64_long nrl,B64_long nrh,B64_long ncl,B64_long nch);
-     void ArraySort_String(int n,char **Pair_Name,int *brr);
-//     char **rdname;
-     char **DBname,*ptr,RC,ID;
-     char *line,*st,*ed,*match_text = "M ";
-     FILE *fp,*namef;
-     B64_long *read_offsets,big_num;
-     int n_find,idd,stopflag,num_align,refhit1,refhit2;
-     int readhit1 = 0,readhit2 = 0;
-     fasta *segg,*seqp;
-     B64_long Size_q_pdata;
-     int num_seqque,size_range[5];
-     char *pdata;
-
-     if((fp=fopen(argv[args+1],"rb"))==NULL) printf("Cannot open file\n");
-       fseek(fp, 0, SEEK_END);
-     Size_q_pdata = ftell(fp) + 1;
-     fclose(fp);
-     if((pdata=(char*)calloc(Size_q_pdata,sizeof(char)))==NULL)
-       printf("calloc pdata\n");
-     num_seqque = extractFastq(argv[args+1],pdata,Size_q_pdata);
-     if((segg=(fasta*)calloc((num_seqque+1),sizeof(fasta)))==NULL)
-       printf("calloc segg\n");
-     if((sub=decodeFastq(argv[args+1],&num_seqque,&sBase,pdata,Size_q_pdata,segg))==NULL)
-       printf("no query data found.\n");
-     n_contigs = num_seqque;
-     fastaUC(sub,n_contigs);
-
-     n_reads = nRead + n_contigs;
-     RC = '+';
-     ID = 'I';
-     cell_name = cmatrix(0,2,0,Max_N_NameBase);
-     rdname=cmatrix(0,nRead,0,Max_N_NameBase);
-     DBname=cmatrix(0,n_reads,0,Max_N_NameBase);
-
-     if((line= (char *)calloc(2000,sizeof(char))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - line\n");
-       exit(1);
-     }
-     if((readIndex= (int *)calloc(n_reads,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - readIndex\n");
-       exit(1);
-     }
-     if((map_score= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - map_score\n");
-       exit(1);
-     }
-     if((hit_score= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - hit_score\n");
-       exit(1);
-     }
-     if((indel_st= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - indel_st\n");
-       exit(1);
-     }
-     if((hit_quest= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - hit_quest\n");
-       exit(1);
-     }
-     if((hit_queed= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - hit_queed\n");
-       exit(1);
-     }
-     if((hit_refst= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - hit_refst\n");
-       exit(1);
-     }
-     if((hit_rcdex= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - hit_rcdex\n");
-       exit(1);
-     }
-     if((hit_refed= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - hit_refed\n");
-       exit(1);
-     }
-     if((ctg_index= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: Align_Process - ctg_index\n");
-       exit(1);
-     }
-     if((hit_iddex= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - hit_iddex\n");
-       exit(1);
-     }
-     if((cigar_list= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - cigar_list\n");
-       exit(1);
-     }
-     if((cigar_head= (B64_long *)calloc(nRead,sizeof(B64_long))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - cigar_head\n");
-       exit(1);
-     }
-     if((hit_offset= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - hit_offset\n");
-       exit(1);
-     }
-     if((indel_size= (int *)calloc(nRead,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - indel_size\n");
-       exit(1);
-     }
-     if((read_offsets= (B64_long *)calloc(nRead,sizeof(B64_long))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - read_offsets\n");
-       exit(1);
-     }
-     if((contig_list= (int *)calloc(n_contigs+1,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - contig_list\n");
-       exit(1);
-     }
-     if((contig_head= (int *)calloc(n_contigs+1,sizeof(int))) == NULL)
-     {
-       printf("ERROR Memory_Allocate: calloc - contig_head\n");
-       exit(1);
-     }
-
-     if((namef = fopen(argv[args],"r")) == NULL)
-     {
-       printf("ERROR main:: reads group file \n");
-       exit(1);
-     }
-
-/*   read the SNP output file         */
-     num_align=0;
-     num_reads = 0;
-     while(!feof(namef))
-     {
-       int nPair=0,len;
-       char line2[2000],line3[2000],base[500],score[3];
-      
-       fgets(line,2000,namef);
-       if(feof(namef)) break;
-       strcpy(line2,line);
-       strcpy(line3,line);
-       if(((strncmp(line,"cigar",5))==0)&&(read_mask[num_reads]==1))
-       { 
-         refhit1 = 0;
-         refhit2 = 0;     
-         readhit1 = 0;
-         readhit2 = 0;     
-         for(ptr=strtok(line," ");ptr!=NULL;ptr=strtok((char *)NULL," "),nPair++)
-         {
-         }
-         i=0;
-         for(ptr=strtok(line2," ");ptr!=NULL;ptr=strtok((char *)NULL," "),i++)
-         {
-            if(i==0)
-            {
-              memset(score,'\0',3);
-              memset(base,'\0',500);
-              strcat(base,ptr);
-	      len = strlen(base);
-	      if(len < 8)
-	      {
-	        map_score[num_align] = 50;
-//	        printf("score: %d %s",len,line3);
-	      }
-	      else
-	      {
-	        score[0] = line3[7];
-	        score[1] = line3[8];
-	        map_score[num_align] = atoi(score);
-//	        printf("score: %d %s",len,line3);
-	      }
-            }
-            else if(i==1)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              strcpy(rdname[num_align],ptr);
-            }
-            else if(i==2)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              readhit1 = atoi(ptr);
-            }
-            else if(i==3)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              readhit2 = atoi(ptr);
-            }
-            else if(i==4)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-	      RC = *ptr;
-	    }
-            else if(i==5)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              strcpy(DBname[num_align],ptr);
-            }
-            else if(i==6)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              refhit1 = atoi(ptr);
-            }
-            else if(i==7)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              refhit2 = atoi(ptr);
-            }
-            else if(i==8)
-            {
-              hit_refst[num_align]=refhit1;
-              hit_refed[num_align]=refhit2;
-              if(RC=='+')
-              {
-                hit_rcdex[num_align]=0;
-                hit_quest[num_align]=readhit1;
-                hit_queed[num_align]=readhit2;
-              } 
-              else
-              {
-                if((readhit1-readhit2)<0)
-                {
-                  hit_quest[num_align]=readhit1;
-                  hit_queed[num_align]=readhit2;
-                } 
-                else
-                {
-                  hit_quest[num_align]=readhit2;
-                  hit_queed[num_align]=readhit1;
-                } 
-                hit_rcdex[num_align]=1;
-              }
-              readIndex[num_align] = num_align;
-              num_align++;
-            }
-            else if(i==9)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              hit_score[num_align-1] = atoi(ptr);
-            }
-            else if(i==11)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              hit_offset[num_align-1] = atoi(ptr);
-            }
-            else if(i==12)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              ID = *ptr;
-	      if(ID == 'I')
-	        hit_iddex[num_align-1] = 0;
-	      else
-	        hit_iddex[num_align-1] = 1;
-            }
-            else if(i==13)
-            {
-              memset(base,'\0',500);
-              strcat(base,ptr);
-              indel_size[num_align-1] = atoi(ptr);
-            }
-         }
-       }
-       num_reads++;
-     }
-     fclose(namef);
-
-     memset(ctg_index,-1,num_align*4);
-/*   sort out reference head  */
-     num_cline = 1;
-     strcpy(cell_name[0],"READS");
-
-     printf("number of cell lines: %d\n",num_cline);
-
-/*   sort out contig name match */
-     if(nRead!= num_align)
-     {
-       printf("Number of reads not the same. Job stopped!\n");
-       exit(1);
-     }
-
-     for(j=0;j<n_contigs;j++)
-     {
-        strcpy(DBname[j+nRead],(sub+j)->name);
-        readIndex[j+nRead]=j+nRead;
-     } 
-     n_reads = nRead + n_contigs; 
-     ArraySort_String(n_reads,DBname,readIndex);
-
-     n_find = 0;
-     idd = -1;
-     for(i=0;i<n_reads;i++)
-     {
-/*      search reads with an index < i     */
-/*      search reads with an index > i     */
-        stopflag=0;
-        j=i+1;
-//     printf("www2: %d %d %s %s\n",i,j,DBname[i],DBname[j]);
-        while((j<n_reads)&&(stopflag==0))
-        {
-          if(strcmp(DBname[j],DBname[i])==0)
-          {
-            j++;
-          }
-          else
-            stopflag=1;
-        }
-        idd = -1;
-        if((j-i)>1)
-        {
-          for(k=i;k<j;k++)
-          {
-             if(readIndex[k]>=nRead)
-             {
-               idd = readIndex[k]-nRead;
-               k = j;
-             }
-          }
-          if(idd>=0)
-          {
-            for(k=i;k<j;k++)
-            {
-               if(readIndex[k]<nRead)
-               {
-                 ctg_index[readIndex[k]] = idd;
-                 n_find++;
-               }
-            }
-          }
-        }
-        i=j-1;
-     }
-     printf("number of reads aligned to the genome: %d\n",n_find);
-
-/*   sort out match offsets on contigs/chromosomes */
-     for(j=0;j<nRead;j++)
-     {
-        B64_long nn;
-
-	if(ctg_index[j]>=0)
-	  nn = ctg_index[j];
-	else
-	  nn = 50000L;
-        readIndex[j]=j;
-	read_offsets[j] = (nn<<40) + hit_refst[j]+hit_offset[j]; 
-     }
-     ArraySort_Mix(nRead,read_offsets,readIndex);
-
-     size_range[1] = 0;
-     size_range[2] = 0;
-     size_range[3] = 0;
-     big_num = 1L<<30;
-     n_find = 0;
-     for(i=0;i<nRead;i++)
-     {
-        stopflag=0;
-        j=i+1;
-        while((j<nRead)&&(stopflag==0))
-        {
-//          if(((read_offsets[j]-read_offsets[i])>3)&&((read_offsets[j]-read_offsets[i])<30))
-          if((read_offsets[j]-read_offsets[i])<set_shift)
-          {
-            j++;
-          }
-          else
-            stopflag=1;
-        }
-	if((j-i)>=2)
-        {
-	  int idd = (read_offsets[i]>>40);
-	  int id_size = indel_size[readIndex[i]];
-	  size_range[id_size]++; 
-          for(k=0;k<(j-i);k++)
-	  {
-	     int idk = readIndex[i+k];
-             int genome_offset = hit_refst[idk]+hit_offset[idk];
-             int query_offset;
-
-	     if(hit_rcdex[idk]==0)
-	       query_offset = hit_quest[idk] + hit_offset[idk];
-	     else
-	       query_offset = hit_queed[idk] - hit_offset[idk]+1;
-	     seqp = sub + idd;
-	     if(insert_flag)
-  	       printf("Insertion: %d %s %d %d %d %d %s %d %d\n",n_find,seqp->name,genome_offset,indel_size[idk],j-i,map_score[idk],rdname[idk],query_offset,hit_rcdex[idk]);
-	     else 
-  	       printf("Deletion: %d %s %d %d %d %d %s %d %d\n",n_find,seqp->name,genome_offset,indel_size[idk],j-i,map_score[idk],rdname[idk],query_offset,hit_rcdex[idk]);
-	  }
-	  printf("\n");
-	  n_find++;
-        }
-        i=j-1;
-     }
-     printf("number of indels: %d %d %d %d\n",n_find,size_range[1],size_range[2],size_range[3]);
-     free(read_offsets);
-}
 
 
 #define SWAP(a,b) temp=(a);(a)=b;(b)=temp;

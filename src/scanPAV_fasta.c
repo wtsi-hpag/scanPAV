@@ -185,7 +185,7 @@ int main(int argc, char **argv)
          seq_len = seq_ed-seq_st;
          nline = seq_len/60;
 	 fprintf(namef,">%s_%d\n",ctgname,i);
-	 fprintf(namef2,"%s_%d %d %d %s\n",ctgname,i,seqp->length,seqp->length,"assembly");
+	 fprintf(namef2,"%s_%d %d %d %s\n",ctgname,i,seqp->length,seqp->length,seqp->name);
          for(k=0;k<nline;k++)
          {
             for(j=0;j<60;j++)

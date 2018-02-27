@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 
     if(argc < 2)
     {
-         printf("Usage: %s -nodes 30 -align bwa/smalt -score 550 <presence_assembly.fasta> <absence_assembly.fasta> <presence_absence.fasta>\n",argv[0]);
+         printf("Usage: %s -nodes 30 -align bwa/smalt -score 550 <presence_assembly.fasta> <absence_assembly.fasta> <presence_absence.vcf>\n",argv[0]);
          printf("       nodes  (30)    - number of CPUs requested\n");
          printf("       score  (550)   - Smith-Waterman alignment score\n");
          printf("       align  (bwa)   - use BWA as the aligner\n");
@@ -187,10 +187,11 @@ int main(int argc, char **argv)
 
     if((namef = fopen(file_presence,"r")) == NULL)
     {
-      printf("File not in the working directory!\n");
+      printf("File not in the working directory or the used command not recognised!\n");
       if((namef = fopen(argv[args],"r")) == NULL)
       {
         printf("File %s not found and please copy it to your working directory!\n",argv[args]);
+        printf("Or command %s not recognised, please check usage!\n",argv[args]);
         exit(1);
       }
       else
@@ -207,10 +208,11 @@ int main(int argc, char **argv)
 
     if((namef = fopen(file_absence,"r")) == NULL)
     {
-      printf("File not in the working directory!\n");
+      printf("File not in the working directory or the used command not recognised!\n");
       if((namef = fopen(argv[args+1],"r")) == NULL)
       {
         printf("File %s not found and please copy it to your working directory!\n",argv[args+1]);
+        printf("Or command %s not recognised, please check usage!\n",argv[args+1]);
         exit(1);
       }
       else
@@ -228,7 +230,7 @@ int main(int argc, char **argv)
     printf("Calling %s %s %s %s\n",argv[args],argv[args+1],argv[args+2],toolname);
    
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scanPAV_gapsize %s genome-gapsize.fasta > try.out",bindir,file_presence);
+    sprintf(syscmd,"%s/scanPAV_gapsize %s genome-gapsize.fasta genome-gapsize.agp > try.out",bindir,file_presence);
     if(system(syscmd) == -1)
     {
 //      printf("System command error:\n);
@@ -348,21 +350,42 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scanPAV_process align.clean | egrep match:  > align.match",bindir);
+    sprintf(syscmd,"%s/scanPAV_process align.clean presence.tag | egrep match:  > align.match",bindir);
     if(system(syscmd) == -1)
     {
 //      printf("System command error:\n);
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scanPAV_seqout presence.fasta align.match presence-absence.fasta > try.out",bindir);
+    sprintf(syscmd,"cat align.match genome-gapsize.agp | sort -k 4,4n -k 5,5n > align.agpmap",bindir);
     if(system(syscmd) == -1)
     {
 //      printf("System command error:\n);
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"mv presence-absence.fasta %s",file_scanPAV);
+    sprintf(syscmd,"%s/scanPAV_maploci align.agpmap align.locus > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//      printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scanPAV_seqout -file %s presence.fasta align.locus presence.tag presence-absence.vcf presence-absence.fasta > try.out",bindir,file_presence);
+    if(system(syscmd) == -1)
+    {
+//      printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"mv presence-absence.vcf %s",file_scanPAV);
+    if(system(syscmd) == -1)
+    {
+//      printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"mv presence-absence.fasta %s.fasta",file_scanPAV);
     if(system(syscmd) == -1)
     {
 //      printf("System command error:\n);

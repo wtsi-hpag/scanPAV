@@ -89,7 +89,7 @@ void main(int argc, char **argv)
 
      if(argc < 2)
      {
-         printf("Usage: %s <assembly.fasta> <assembly_gapsized.fasta>\n",argv[0]);
+         printf("Usage: %s <assembly.fasta> <assembly_gapsized.fasta> <assembly_gapsized.agp>\n",argv[0]);
          exit(1);
      }
 /*   sort all the names of genes or name entries   */
@@ -126,7 +126,7 @@ void Phusion_Stage(char **argv, int argc, int args)
      long totalBases,total_len;
      int nSeq,num_Ns,i_contig;
      int qthresh=23;
-     int ac,stopflag,n_contig,offset,n_Ns;
+     int ac,stopflag,n_contig,offset,n_Ns,offset_gap;
      char outName[Max_N_NameBase],name_tag[10],namep_tag[10];
      void ArraySort_String(int n,char Pair_Name[][Max_N_NameBase],int *brr);
      char **cmatrix(long nrl,long nrh,long ncl,long nch);
@@ -158,6 +158,11 @@ void Phusion_Stage(char **argv, int argc, int args)
        printf("Unable to open file for fastq out\n");
        exit(1);
      }
+     if((fpOutfast2 = fopen(argv[args+2],"w")) == NULL)
+     {
+       printf("Unable to open file for fastq out\n");
+       exit(1);
+     }
 
      n_contig = 0;
      seqp=seq;
@@ -172,6 +177,7 @@ void Phusion_Stage(char **argv, int argc, int args)
         int kk,rc,slength,start=0,nline=0,outlen=0,n_base,olen=60,offset2=0;
         char *st;
 
+        offset_gap = 0;
         seqp=seq+iseq;
         slength=seqp->length;
 	memset(name_tag,'\0',10);
@@ -188,6 +194,7 @@ void Phusion_Stage(char **argv, int argc, int args)
         n_base=0;
         n_Ns=0;
         fprintf(fpOutfast,">%s\n",seqp->name);
+//        fprintf(fpOutfast2,"%ld %s\n",iseq,seqp->name);
         for(j=0;j<slength;j++) 
         {
            kk=j+1;
@@ -215,16 +222,25 @@ void Phusion_Stage(char **argv, int argc, int args)
              for(i=0;i<outlen;i++)
                 fprintf(fpOutfast,"%c",seqp->data[start+offset2+i]);
              if(n_Ns >= 200)
+             {
                n_Ns = 200;
-             if(n_Ns == 2)
+             }
+             else if(n_Ns == 2)
+             {
                n_Ns = 10;
+             }
+             if(outlen>0)
+             {
+               fprintf(fpOutfast2,"gapsm: %s %d %ld %d %d\n",seqp->name,outlen,iseq,offset_gap,start+offset2);
+               offset_gap = offset_gap + outlen+n_Ns;
+             }
              if((outlen > 0)&&((slength - kk) > 1))
              {
                for(i=0;i<n_Ns;i++)
                   fprintf(fpOutfast,"%c",'N');
              }
              if((n_Ns> 0)&&((slength - kk)< 1))
-          printf("offset: %d %d %s\n",n_Ns,kk,seqp->name);
+          printf("offset: %d %d %d %s\n",n_Ns,kk,slength,seqp->name);
              start=offset+1;
              n_Ns=0;
              n_base=0;
@@ -241,6 +257,7 @@ void Phusion_Stage(char **argv, int argc, int args)
           i_contig++;
           nline=outlen/olen;
           total_len = total_len+outlen;
+          fprintf(fpOutfast2,"gapsm: %s %d %ld %d %d\n",seqp->name,outlen,iseq,offset_gap,start+offset2);
 //          printf("offset: %d %d %d %ld\n",start,outlen,n_Ns,total_len);
           {
             for(i=0;i<outlen;i++)

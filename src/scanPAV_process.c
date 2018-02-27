@@ -222,6 +222,36 @@ int main(int argc, char **argv)
     n_contig=0;
     n_reads=0;
 
+    nseq=0;
+    if((namef = fopen(argv[args+1],"r")) == NULL)
+    {
+      printf("ERROR main:: args \n");
+      exit(1);
+    }
+    while(!feof(namef))
+    {
+      fgets(line,2000,namef);
+      if(feof(namef)) break;
+      nseq++;
+    }
+    fclose(namef); 
+   
+    T_Name=cmatrix(0,nseq+10,0,Max_N_NameBase);
+
+    if((namef = fopen(argv[args+1],"r")) == NULL)
+    {
+      printf("ERROR main:: reads group file \n");
+      exit(1);
+    }
+
+/*  read the alignment files         */
+    i=0;
+    while(fscanf(namef,"%s %s %s %s",tempc1,tempc1,tempc1,T_Name[i])!=EOF)
+    {
+        i++;
+    }
+    fclose(namef);
+
     if((namef = fopen(argv[args],"r")) == NULL)
     {
       printf("ERROR main:: reads group file \n");
@@ -296,7 +326,8 @@ void Indel_Process(char **argv,int args,int nSeq)
 	num_hit1 = j-i;
         if(((j-i)>=1)&&(R_Name[i][0] == '*')) 
         {
-          printf("match: %s %d %d %d %d\n",S_Name[i],num_hit1,hit_ctgdex[i],hit_offset[i],hit_offset[j-1]+1000);
+          int idd = hit_ctgdex[i];
+          printf("match: %s %d %d %d %d\n",T_Name[idd],num_hit1,hit_ctgdex[i],hit_offset[i],hit_offset[j-1]+1000);
         }
         i=j-1;
      }
