@@ -1,4 +1,4 @@
-# scanPAV
+bwa_550/log.txt# scanPAV
 Pipeline to detect presence/absence variations (PAVs) when comparing two genome assemblies, assembly_1 and assembly_2.
 
 To find PAV sequences present in in assembly_1 (presence-assembly) but absent in assembly_2 (absence-assembly), the pipeline performs the following steps:
@@ -20,6 +20,11 @@ If everything compiled saccessfully you must see the final comment:
 		"Congrats: installation successful!"		
 
 (Tested with gcc-4.9.2) 
+
+### Test the installation using the yeast example:
+		$ cd example
+		$ ./run_yeast.sh
+The test is using 20 cores and should take less than a minute. The pipeline output will be in bwa_550/log.txt and the pavs in the same folder: bwa_550/. More details on the test in example/readme.txt.
 
 #### External packages
 The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sanger.ac.uk/science/tools/smalt-0) are downloaded and compiled by scanPAV.
