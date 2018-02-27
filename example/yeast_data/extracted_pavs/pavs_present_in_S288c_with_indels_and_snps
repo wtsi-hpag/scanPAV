@@ -1,0 +1,48 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##reference=file:/lustre/scratch117/sciops/team117/hpag/fg6/analysis/Devel/scanPAV/example/yeast_data/S288c_with_indels_and_snps.fasta
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant>"
+##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">
+##INFO=<ID=STRANDS,Number=.,Type=String,Description="Strand orientation of the adjacency in BEDPE format (DEL:+-, DUP:-+, INV:++/--)">
+##INFO=<ID=IMPRECISE,Number=0,Type=Flag,Description="Imprecise structural variation">
+##ALT=<ID=DEL,Description="Deletion">
+##ALT=<ID=DUP,Description="Duplication">
+##ALT=<ID=INV,Description="Inversion">
+##ALT=<ID=DUP:TANDEM,Description="Tandem duplication">
+##ALT=<ID=INS,Description="Insertion of novel sequence">
+##ALT=<ID=CNV,Description="Copy number variable region">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##source=scanPAV
+##contig=<ID=SV_ref|NC_001133|,length=230218>
+##contig=<ID=SV_ref|NC_001134|,length=799472>
+##contig=<ID=SV_ref|NC_001135|,length=316620>
+##contig=<ID=SV_ref|NC_001136|,length=1465485>
+##contig=<ID=SV_ref|NC_001137|,length=576874>
+##contig=<ID=SV_ref|NC_001138|,length=270161>
+##contig=<ID=SV_ref|NC_001139|,length=1090940>
+##contig=<ID=SV_ref|NC_001140|,length=599039>
+##contig=<ID=SV_ref|NC_001141|,length=414458>
+##contig=<ID=SV_ref|NC_001142|,length=745751>
+##contig=<ID=SV_ref|NC_001143|,length=534733>
+##contig=<ID=SV_ref|NC_001144|,length=1174774>
+##contig=<ID=SV_ref|NC_001145|,length=941823>
+##contig=<ID=SV_ref|NC_001146|,length=864087>
+##contig=<ID=SV_ref|NC_001147|,length=1156012>
+##contig=<ID=SV_ref|NC_001148|,length=954484>
+##contig=<ID=SV_ref|NC_001224|,length=85779>
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+SV_ref|NC_001134|	247001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-23000;END=270001
+SV_ref|NC_001134|	381001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-11000;END=392001
+SV_ref|NC_001136|	838001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-1000;END=839001
+SV_ref|NC_001136|	1435001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-15000;END=1450001
+SV_ref|NC_001140|	381001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-37000;END=418001
+SV_ref|NC_001144|	315001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-9000;END=324001
+SV_ref|NC_001144|	497001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-63000;END=560001
+SV_ref|NC_001144|	604001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-10000;END=614001
+SV_ref|NC_001144|	1073001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-15000;END=1088001
+SV_ref|NC_001145|	854001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-17000;END=871001
+SV_ref|NC_001146|	94001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-49000;END=143001
+SV_ref|NC_001146|	474001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-40000;END=514001
+SV_ref|NC_001147|	304001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-70000;END=374001
+SV_ref|NC_001148|	711001	.	N	<DEL>	50	PASS	SVTYPE=DEL;SVLEN=-6000;END=717001
