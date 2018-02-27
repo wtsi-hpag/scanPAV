@@ -19,7 +19,7 @@ Requirements for compiling: gcc
 If everything compiled saccessfully you must see the final comment: 
 		"Congrats: installation successful!"		
 
-(Tested with gcc-4.9.2) 
+(Tested with gcc-4.9.2, gcc-4.9.4, gcc-4.8.1, gcc-6.0.2) 
 
 ### Test the installation using the yeast example:
 		$ cd example
@@ -28,6 +28,8 @@ The test is using 20 cores and should take less than a minute. The pipeline outp
 
 #### External packages
 The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sanger.ac.uk/science/tools/smalt-0) are downloaded and compiled by scanPAV.
+
+The package simulatesv (https://github.com/mlliou112/simulatesv) was used to create a modified yeast assembly to test scanPAV (in the example/ folder).
 
 #### Run:
 
