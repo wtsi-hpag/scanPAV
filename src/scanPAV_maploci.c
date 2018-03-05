@@ -217,9 +217,14 @@ void Locus_Process(char **argv,int args,int nSeq)
               n = ctg_head[m];
               if((ctg_locus2[idt] > (ctg_locus1[n]+6000))&&(ctg_index[idt]==ctg_index[n])&&(ctg_length[n]>=1000))
               {
+                int cut_len = ctg_locus2[idt] - ctg_locus1[n];
                 out_flag = 1;
-//                printf("match-ins: %s %d %d %d %d %d %d\n",S_Name[n],ctg_length[n]/1000,ctg_index[n],ctg_locus1[n],ctg_locus1[n]+ctg_length[n],ctg_locus2[n],ctg_locus2[n]+ctg_length[n]);
-                fprintf(namef,"match-ins: %s %d %d %d %d %d %d\n",S_Name[n],ctg_length[n]/1000,ctg_index[n],ctg_locus1[n],ctg_locus1[n]+ctg_length[n],ctg_locus2[n],ctg_locus2[n]+ctg_length[n]);
+//                printf("match-ins: %s %d %d %d %d %d %d\n",S_Name[n],ctg_length[n]/1000,ctg_locus2[idt],ctg_locus1[n],ctg_locus1[n]+ctg_length[n],ctg_locus2[n],ctg_locus2[n]+ctg_length[n]);
+//                printf("match-ins: %s %d %d %d %d %d %d\n",S_Name[n],ctg_length[n]/1000,ctg_locus2[idt],ctg_locus1[n],ctg_locus1[n]+ctg_length[n],ctg_locus2[n],ctg_locus2[n]+ctg_length[n]);
+                if(ctg_length[n] < 200000)
+                  fprintf(namef,"match-ins: %s %d %d %d %d %d %d\n",S_Name[n],ctg_length[n]/1000,ctg_index[n],ctg_locus1[n],ctg_locus1[n]+ctg_length[n],ctg_locus2[n],ctg_locus2[n]+ctg_length[n]);
+                else
+                  fprintf(namef,"match-ins: %s %d %d %d %d %d %d\n",S_Name[n],cut_len/1000,ctg_index[n],ctg_locus1[n],ctg_locus1[n]+cut_len,ctg_locus2[n],ctg_locus2[n]+cut_len);
               }
               else
               {
